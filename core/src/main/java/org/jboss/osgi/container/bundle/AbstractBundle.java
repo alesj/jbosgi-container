@@ -76,9 +76,11 @@ public abstract class AbstractBundle implements Bundle
    private AtomicInteger bundleState = new AtomicInteger(UNINSTALLED);
    private BundleWrapper bundleWrapper;
    private long lastModified = System.currentTimeMillis();
-   private CopyOnWriteArrayList<ServiceState> registeredServices;
+   private final CopyOnWriteArrayList<ServiceState> registeredServices =
+         new CopyOnWriteArrayList<ServiceState>();
    private final String symbolicName;
-   private ConcurrentHashMap<ServiceState, AtomicInteger> usedServices;
+   private final ConcurrentHashMap<ServiceState, AtomicInteger> usedServices =
+         new ConcurrentHashMap<ServiceState, AtomicInteger>();
 
    // Cache commonly used plugins
    private final BundleManager bundleManager;
@@ -192,11 +194,6 @@ public abstract class AbstractBundle implements Bundle
    {
       log.debug("Add registered service [" + serviceState + "] to: " + this);
 
-      synchronized (this)
-      {
-         if (registeredServices == null)
-            registeredServices = new CopyOnWriteArrayList<ServiceState>();
-      }
       registeredServices.add(serviceState);
    }
 
@@ -204,15 +201,11 @@ public abstract class AbstractBundle implements Bundle
    {
       log.debug("Remove registered service [" + serviceState + "] from: " + this);
 
-      if (registeredServices != null)
-         registeredServices.remove(serviceState);
+      registeredServices.remove(serviceState);
    }
 
    public List<ServiceState> getRegisteredServicesInternal()
    {
-      if (registeredServices == null)
-         return Collections.emptyList();
-
       return Collections.unmodifiableList(registeredServices);
    }
 
@@ -220,12 +213,12 @@ public abstract class AbstractBundle implements Bundle
    public ServiceReference[] getRegisteredServices()
    {
       assertNotUninstalled();
-      List<ServiceState> registeredServices = getRegisteredServicesInternal();
-      if (registeredServices.isEmpty())
+      List<ServiceState> services = getRegisteredServicesInternal();
+      if (services.isEmpty())
          return null;
 
       List<ServiceReference> srefs = new ArrayList<ServiceReference>();
-      for (ServiceState serviceState : registeredServices)
+      for (ServiceState serviceState : services)
          srefs.add(serviceState.getReference());
 
       return srefs.toArray(new ServiceReference[srefs.size()]);
@@ -235,16 +228,8 @@ public abstract class AbstractBundle implements Bundle
    {
       log.debug("Add service in use [" + serviceState + "] to: " + this);
 
-      AtomicInteger count;
-      synchronized (this)
-      {
-         if (usedServices == null)
-            usedServices = new ConcurrentHashMap<ServiceState, AtomicInteger>();
-
-         count = usedServices.get(serviceState);
-         if (count == null)
-            usedServices.put(serviceState, count = new AtomicInteger());
-      }
+      usedServices.putIfAbsent(serviceState, new AtomicInteger());
+      AtomicInteger count = usedServices.get(serviceState);
       count.incrementAndGet();
    }
 
@@ -252,27 +237,19 @@ public abstract class AbstractBundle implements Bundle
    {
       log.debug("Remove service in use [" + serviceState + "] from: " + this);
 
-      AtomicInteger count;
-      synchronized (this)
-      {
-         if (usedServices == null)
-            return -1;
+      AtomicInteger count = usedServices.get(serviceState);
+      if (count == null)
+         return -1;
 
-         count = usedServices.get(serviceState);
-         if (count == null)
-            return -1;
+      int countVal = count.decrementAndGet();
+      if (countVal == 0)
+         usedServices.remove(serviceState);
 
-         if (count.decrementAndGet() == 0)
-            usedServices.remove(serviceState);
-      }
-      return count.get();
+      return countVal;
    }
 
    public Set<ServiceState> getServicesInUseInternal()
    {
-      if (usedServices == null)
-         return Collections.emptySet();
-
       return Collections.unmodifiableSet(usedServices.keySet());
    }
 
