@@ -151,8 +151,7 @@ public class BundleManager
          systemBundle = (SystemBundle)bundleState;
 
       // Add the bundle to the resolver
-      ResolverPlugin plugin = getPlugin(ResolverPlugin.class);
-      plugin.addBundle(bundleState);
+      bundleState.addToResolver();
 
       // Register the bundle with the manager
       bundleMap.put(bundleId, bundleState);
@@ -161,8 +160,9 @@ public class BundleManager
 
    void removeBundleState(AbstractBundle bundleState)
    {
-      ResolverPlugin plugin = getPlugin(ResolverPlugin.class);
-      plugin.removeBundle(bundleState);
+      //      ResolverPlugin plugin = getPlugin(ResolverPlugin.class);
+      //      plugin.removeBundle(bundleState);
+      bundleState.removeFromResolver();
 
       bundleState.changeState(Bundle.UNINSTALLED);
       bundleMap.remove(bundleState.getBundleId());

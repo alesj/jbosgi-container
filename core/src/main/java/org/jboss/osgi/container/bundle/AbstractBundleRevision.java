@@ -31,7 +31,6 @@ import org.jboss.modules.ModuleIdentifier;
 import org.jboss.osgi.container.plugin.ModuleManagerPlugin;
 import org.jboss.osgi.deployment.deployer.Deployment;
 import org.jboss.osgi.metadata.OSGiMetaData;
-import org.jboss.osgi.resolver.XModule;
 import org.jboss.osgi.vfs.VirtualFile;
 import org.osgi.framework.Version;
 
@@ -44,7 +43,7 @@ import org.osgi.framework.Version;
  * @author <a href="david@redhat.com">David Bosschaert</a>
  * @since 29-Jun-2010
  */
-public abstract class AbstractBundleRevision
+public abstract class AbstractBundleRevision implements Revision
 {
    private final InternalBundle internalBundle;
    private final OSGiMetaData metadata;
@@ -104,8 +103,6 @@ public abstract class AbstractBundleRevision
    {
       return version;
    }
-
-   abstract XModule getResolverModule();
 
    abstract URL getResource(String name);
 

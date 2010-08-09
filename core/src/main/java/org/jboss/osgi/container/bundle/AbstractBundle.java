@@ -110,6 +110,12 @@ public abstract class AbstractBundle implements Bundle
          bundleId = 0;
    }
 
+   public abstract void addToResolver();
+
+   public abstract boolean checkResolved();
+
+   public abstract void removeFromResolver();
+
    abstract AbstractBundleContext createContextInternal();
 
    @Override

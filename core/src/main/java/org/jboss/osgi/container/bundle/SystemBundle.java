@@ -52,7 +52,7 @@ import org.osgi.framework.Version;
  * @author <a href="david@redhat.com">David Bosschaert</a>
  * @since 29-Jun-2010
  */
-public class SystemBundle extends AbstractBundle
+public class SystemBundle extends AbstractBundle implements Revision
 {
    private OSGiMetaData metadata;
    private XModule resolverModule;
@@ -139,6 +139,26 @@ public class SystemBundle extends AbstractBundle
    public String getLocation()
    {
       return Constants.SYSTEM_BUNDLE_LOCATION;
+   }
+
+   @Override
+   public void addToResolver()
+   {
+
+   }
+
+   @Override
+   public boolean checkResolved()
+   {
+      // TODO Auto-generated method stub
+      return false;
+   }
+
+   @Override
+   public void removeFromResolver()
+   {
+      // TODO Auto-generated method stub
+
    }
 
    @Override

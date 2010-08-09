@@ -21,17 +21,15 @@
  */
 package org.jboss.osgi.container.plugin.internal;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.jboss.logging.Logger;
 import org.jboss.modules.ModuleIdentifier;
 import org.jboss.modules.ModuleLoadException;
 import org.jboss.osgi.container.bundle.AbstractBundle;
 import org.jboss.osgi.container.bundle.BundleManager;
+import org.jboss.osgi.container.bundle.Revision;
+import org.jboss.osgi.container.bundle.ModuleManager;
 import org.jboss.osgi.container.plugin.AbstractPlugin;
 import org.jboss.osgi.container.plugin.ModuleManagerPlugin;
 import org.jboss.osgi.container.plugin.ResolverPlugin;
@@ -72,22 +70,22 @@ public class ResolverPluginImpl extends AbstractPlugin implements ResolverPlugin
    }
 
    @Override
-   public void addBundle(AbstractBundle bundleState)
+   public void addRevision(Revision bundleState)
    {
       XModule resolverModule = bundleState.getResolverModule();
-      resolverModule.addAttachment(Bundle.class, bundleState);
+      resolverModule.addAttachment(Revision.class, bundleState);
       resolver.addModule(resolverModule);
    }
 
    @Override
-   public void removeBundle(AbstractBundle bundleState)
+   public void removeRevision(Revision bundleState)
    {
       XModule resolverModule = bundleState.getResolverModule();
       resolver.removeModule(resolverModule);
    }
    
    @Override
-   public void resolve(AbstractBundle bundleState) throws BundleException
+   public void resolve(Revision bundleState) throws BundleException
    {
       XModule resModule = bundleState.getResolverModule();
       try
@@ -101,7 +99,8 @@ public class ResolverPluginImpl extends AbstractPlugin implements ResolverPlugin
 
       // Load the resolved module
       ModuleManagerPlugin moduleManger = getPlugin(ModuleManagerPlugin.class);
-      ModuleIdentifier identifier = bundleState.getModuleIdentifier();
+      // ModuleIdentifier identifier = bundleState.getModuleIdentifier();
+      ModuleIdentifier identifier = ModuleManager.getModuleIdentifier(resModule);
       try
       {
          moduleManger.loadModule(identifier);
@@ -113,8 +112,10 @@ public class ResolverPluginImpl extends AbstractPlugin implements ResolverPlugin
    }
 
    @Override
-   public List<AbstractBundle> resolve(List<AbstractBundle> bundles)
+   public List<Revision> resolve(List<Revision> bundles)
    {
+      /* TODO 
+
       // Get the list of unresolved modules
       Set<XModule> unresolved = new LinkedHashSet<XModule>();
       if (bundles == null)
@@ -166,6 +167,8 @@ public class ResolverPluginImpl extends AbstractPlugin implements ResolverPlugin
          }
       }
       return Collections.unmodifiableList(result);
+      */
+      return null;
    }
 
    class ResolverCallback implements XResolverCallback

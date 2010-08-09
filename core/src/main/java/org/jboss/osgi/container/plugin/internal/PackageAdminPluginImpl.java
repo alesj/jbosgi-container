@@ -284,17 +284,17 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
                }
             }
 
-            for (InternalBundle ib : refreshList)
-            {
-               try
-               {
-                  ib.refresh();
-               }
-               catch (BundleException e)
-               {
-                  eventsPlugin.fireFrameworkEvent(ib, FrameworkEvent.ERROR, e);
-               }
-            }
+            //            for (InternalBundle ib : refreshList)
+            //            {
+            //               try
+            //               {
+            //                  ib.refresh();
+            //               }
+            //               catch (BundleException e)
+            //               {
+            //                  eventsPlugin.fireFrameworkEvent(ib, FrameworkEvent.ERROR, e);
+            //               }
+            //            }
 
             for (InternalBundle b : stopList)
             {
@@ -340,7 +340,7 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
 
       // Resolve the bundles through the resolver plugin
       ResolverPlugin resolver = getPlugin(ResolverPlugin.class);
-      List<AbstractBundle> resolved = resolver.resolve(unresolved);
+      List<AbstractBundle> resolved = null; // TODO resolver.resolve(unresolved);
       boolean allResolved = unresolved.size() == resolved.size();
 
       return allResolved;
