@@ -207,9 +207,6 @@ public class BundleTestCase extends OSGiFrameworkTest
       {
          bundleY.uninstall();
          bundle.uninstall();
-
-         // Call this method in the finally block of any test that uses Bundle.update()
-         packageAdminRefreshAll();
       }
    }
 
@@ -269,9 +266,6 @@ public class BundleTestCase extends OSGiFrameworkTest
          getSystemContext().removeFrameworkListener(this);
          bundleX.uninstall();
          bundleA.uninstall();
-
-         // Call this method in the finally block of any test that uses Bundle.update()
-         packageAdminRefreshAll();
       }
    }
 
@@ -342,9 +336,6 @@ public class BundleTestCase extends OSGiFrameworkTest
          getSystemContext().removeFrameworkListener(this);
          bundleX.uninstall();
          bundleA.uninstall();
-
-         // Call this method in the finally block of any test that uses Bundle.update()
-         packageAdminRefreshAll();
       }
    }
 
@@ -392,9 +383,6 @@ public class BundleTestCase extends OSGiFrameworkTest
       finally
       {
          bundle.uninstall();
-
-         // Call this method in the finally block of any test that uses Bundle.update()
-         packageAdminRefreshAll();
       }
    }
 
@@ -541,14 +529,5 @@ public class BundleTestCase extends OSGiFrameworkTest
    public void testLoadClass() throws Exception
    {
       // TODO testLoadClass
-   }
-
-   // Call this method at the end of a finally block of any test that uses Bundle.update()
-   private void packageAdminRefreshAll() throws BundleException, Exception
-   {
-      getSystemContext().addFrameworkListener(this);
-      getPackageAdmin().refreshPackages(null);
-      assertFrameworkEvent(FrameworkEvent.PACKAGES_REFRESHED, getSystemContext().getBundle(0), null);
-      getSystemContext().removeFrameworkListener(this);
    }
 }

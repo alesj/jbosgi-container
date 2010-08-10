@@ -37,8 +37,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.jboss.osgi.testing.OSGiFrameworkTest;
 import org.jboss.shrinkwrap.api.Archive;
@@ -59,7 +57,6 @@ import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.Version;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -695,37 +692,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
 
          bundleU.uninstall();
          bundleE.uninstall();
-
-         // Call this method at the end of a finally block of any test that uses Bundle.update()
-         packageAdminRefreshAll();
-      }
-   }
-
-
-   // Call this method at the end of a finally block of any test that uses Bundle.update()
-   private void packageAdminRefreshAll() throws Exception
-   {
-      packageAdminRefresh(null);
-   }
-
-   private void packageAdminRefresh(Bundle[] bundles) throws Exception
-   {
-      final CountDownLatch latch = new CountDownLatch(1);
-      FrameworkListener fl = new FrameworkListener()
-      {         
-         @Override
-         public void frameworkEvent(FrameworkEvent event)
-         {
-            if (event.getType() == FrameworkEvent.PACKAGES_REFRESHED)
-               latch.countDown();
-         }
-      };
-      try {
-         getSystemContext().addFrameworkListener(fl);
-         getPackageAdmin().refreshPackages(bundles);
-         assertTrue(latch.await(10, TimeUnit.SECONDS));
-      } finally {
-         getSystemContext().removeFrameworkListener(fl);
       }
    }
 }
