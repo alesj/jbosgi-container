@@ -193,6 +193,23 @@ public class InternalBundle extends AbstractBundle
       for (AbstractBundleRevision abr : oldRevs)
          getResolverPlugin().removeRevision(abr);
    }
+   
+   /**
+    * Removes uninstalled bundles, called by Package Admin
+    */
+   public void remove()
+   {
+      getBundleManager().removeBundleState(this);
+
+      for (AbstractBundleRevision abr : oldRevisions)
+         getResolverPlugin().removeRevision(abr);
+
+      if (currentRevision != null)
+         getResolverPlugin().removeRevision(currentRevision);
+
+      oldRevisions.clear();
+      currentRevision = null;
+   }
 
    @Override
    void startInternal(int options) throws BundleException
@@ -540,7 +557,7 @@ public class InternalBundle extends AbstractBundle
          }
       }
 
-      bundleManager.removeBundleState(this);
+      bundleManager.uninstallBundleState(this);
    }
 
    public void unresolve() throws BundleException

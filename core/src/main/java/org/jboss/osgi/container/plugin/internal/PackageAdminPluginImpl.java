@@ -210,8 +210,17 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
             Bundle[] bundles = bundlesToRefresh;
             FrameworkEventsPlugin eventsPlugin = getPlugin(FrameworkEventsPlugin.class);
             if (bundles == null)
-               bundles = getBundleManager().getSystemContext().getBundles();
+            {
+               List<Bundle> allBundles = new ArrayList<Bundle>();
 
+               for (AbstractBundle ab : getBundleManager().getBundles())
+                  allBundles.add(ab.getBundleWrapper());
+
+               for (AbstractBundle ab : getBundleManager().getUninstalledBundles())
+                  allBundles.add(ab.getBundleWrapper());
+
+               bundles = allBundles.toArray(new Bundle[allBundles.size()]);
+            }
             /*
             Map<InternalBundle, XModule> refreshMap = new HashMap<InternalBundle, XModule>();
             for (Bundle b : bundles)
@@ -234,7 +243,16 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
             }
 
             Set<InternalBundle> stopBundles = new HashSet<InternalBundle>();
-            Set<InternalBundle> refreshBundles = new HashSet<InternalBundle>(refreshMap.values());
+            Set<InternalBundle> refreshBundles = new HashSet<InternalBundle>();
+            Set<InternalBundle> uninstallBundles = new HashSet<InternalBundle>();
+            
+            for (InternalBundle ib : refreshMap.values())
+            {
+               if (ib.getState() == Bundle.UNINSTALLED)
+                  uninstallBundles.add(ib);
+               else
+                  refreshBundles.add(ib);
+            }
 
             // Compute all depending bundles that need to be stopped and unresolved.
             for (AbstractBundle ab : getBundleManager().getBundles())
@@ -300,8 +318,7 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
                InternalBundle ib = it.previous();
                try
                {
-                  if (ib.getState() != Bundle.UNINSTALLED)
-                     ib.unresolve();
+                  ib.unresolve();
                   ib.ensureNewRevision();
                }
                catch (BundleException e)
@@ -309,6 +326,9 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
                   eventsPlugin.fireFrameworkEvent(ib, FrameworkEvent.ERROR, e);
                }
             }
+
+            for (InternalBundle ib : uninstallBundles)
+               ib.remove();
 
             for (InternalBundle ib : refreshList)
             {

@@ -85,6 +85,8 @@ public class BundleManager
    private SystemBundle systemBundle;
    // Maps bundleId to Bundle
    private Map<Long, AbstractBundle> bundleMap = Collections.synchronizedMap(new LinkedHashMap<Long, AbstractBundle>());
+   // Maps bundleId to uninstalled Bundles. Uninstalled bundles are available in the system until removed by PackageAdmin.
+   private Map<Long, AbstractBundle> uninstalledMap = Collections.synchronizedMap(new LinkedHashMap<Long, AbstractBundle>());
    /// The registered plugins 
    private Map<Class<? extends Plugin>, Plugin> plugins = new LinkedHashMap<Class<? extends Plugin>, Plugin>();
    // The Framework state
@@ -160,12 +162,16 @@ public class BundleManager
 
    void removeBundleState(AbstractBundle bundleState)
    {
-      //      ResolverPlugin plugin = getPlugin(ResolverPlugin.class);
-      //      plugin.removeBundle(bundleState);
       bundleState.removeFromResolver();
+      uninstalledMap.remove(bundleState.getBundleId());
+   }
 
+   void uninstallBundleState(AbstractBundle bundleState)
+   {
       bundleState.changeState(Bundle.UNINSTALLED);
       bundleMap.remove(bundleState.getBundleId());
+
+      uninstalledMap.put(bundleState.getBundleId(), bundleState);
    }
 
    /**
@@ -233,6 +239,12 @@ public class BundleManager
    public List<AbstractBundle> getBundles()
    {
       List<AbstractBundle> bundles = new ArrayList<AbstractBundle>(bundleMap.values());
+      return Collections.unmodifiableList(bundles);
+   }
+
+   public List<AbstractBundle> getUninstalledBundles()
+   {
+      List<AbstractBundle> bundles = new ArrayList<AbstractBundle>(uninstalledMap.values());
       return Collections.unmodifiableList(bundles);
    }
 
