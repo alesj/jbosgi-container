@@ -384,10 +384,10 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
       }
       log.debug("resolve bundles: " + unresolved);
 
-      // Resolve the bundles through the resolver plugin
-      ResolverPlugin resolver = getPlugin(ResolverPlugin.class);
-      List<AbstractBundle> resolved = null; // TODO resolver.resolve(unresolved);
-      boolean allResolved = unresolved.size() == resolved.size();
+
+      boolean allResolved = true;
+      for (AbstractBundle ab : unresolved)
+         allResolved &= ab.checkResolved();
 
       return allResolved;
    }

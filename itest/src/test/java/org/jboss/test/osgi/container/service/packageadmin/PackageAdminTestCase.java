@@ -51,7 +51,6 @@ import org.jboss.test.osgi.container.packageadmin.importexport.ImportExport;
 import org.jboss.test.osgi.container.packageadmin.optimporter.Importing;
 import org.jboss.test.osgi.container.service.support.a.PA;
 import org.jboss.test.osgi.container.service.support.b.Other;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
@@ -202,7 +201,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testGetExportedPackagesByBundle() throws Exception
    {
       Bundle bundleA = installBundle(assembleArchive("exporter", "/bundles/package-admin/exporter", Exported.class));
@@ -280,7 +278,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testGetExportedPackage() throws Exception
    {
       PackageAdmin pa = getPackageAdmin();
@@ -318,7 +315,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testGetExportedPackagesByName() throws Exception
    {
       PackageAdmin pa = getPackageAdmin();
@@ -377,7 +373,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testGetRequiredBundles() throws Exception
    {
       PackageAdmin pa = getPackageAdmin();
@@ -435,7 +430,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testRefreshPackages() throws Exception
    {
       PackageAdmin pa = getPackageAdmin();
@@ -474,7 +468,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testRefreshPackagesNull() throws Exception
    {
       PackageAdmin pa = getPackageAdmin();
@@ -506,10 +499,12 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
          bundleA.update(toVirtualFile(assembly2).openStream());
          assertBundleState(Bundle.ACTIVE, bundleA.getState());
          assertBundleState(Bundle.ACTIVE, bundleX.getState());
-         assertEquals(Version.parseVersion("1.0.0"), bundleA.getVersion());
-         // Assembly X depends on a package in the bundle, so don't update the packages yet.
-         assertLoadClass(bundleA, ObjectA.class.getName());
-         assertLoadClassFail(bundleA, ObjectA2.class.getName());
+         assertEquals(Version.parseVersion("1.0.2"), bundleA.getVersion());
+         // Should be able to load the new classes via bundleA
+         assertLoadClass(bundleA, ObjectA2.class.getName());
+         assertLoadClassFail(bundleA, ObjectA.class.getName());
+         // Assembly X depends on a package in the old bundle, 
+         // should be able to reach the old classes through bundle X
          assertLoadClass(bundleX, ObjectA.class.getName());
          assertLoadClassFail(bundleX, ObjectA2.class.getName());
          assertSame(cls, bundleX.loadClass(ObjectX.class.getName()));
@@ -549,7 +544,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testResolveBundles() throws Exception
    {
       PackageAdmin pa = getPackageAdmin();
@@ -572,7 +566,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testResolveBundlesNull() throws Exception
    {
       PackageAdmin pa = getPackageAdmin();
@@ -595,7 +588,6 @@ public class PackageAdminTestCase extends OSGiFrameworkTest
    }
 
    @Test
-   @Ignore("davidb fix as part of PackageAdmin TCK work")
    public void testCantResolveAllBundles() throws Exception
    {
       PackageAdmin pa = getPackageAdmin();
