@@ -36,6 +36,7 @@ import org.jboss.osgi.resolver.XModuleBuilder;
 import org.jboss.osgi.resolver.XResolver;
 import org.jboss.osgi.resolver.XResolverFactory;
 import org.jboss.osgi.vfs.VirtualFile;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 /**
@@ -72,8 +73,8 @@ public class BundleRevision extends AbstractBundleRevision
 
       // Create the resolver module
       XModuleBuilder builder = XResolverFactory.getModuleBuilder();
-      resolverModule = builder.createModule(internalBundle.getBundleId(), getOSGiMetaData());
-      resolverModule.addAttachment(BundleRevision.class, this);
+      resolverModule = builder.createModule(getRevisionID(), getOSGiMetaData());
+      resolverModule.addAttachment(Bundle.class, internalBundle);
 
       // In case this bundle is a module.xml deployment, we already have a ModuleSpec
       ModuleSpec moduleSpec = dep.getAttachment(ModuleSpec.class);

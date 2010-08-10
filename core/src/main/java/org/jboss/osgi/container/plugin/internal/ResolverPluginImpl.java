@@ -28,8 +28,8 @@ import org.jboss.modules.ModuleIdentifier;
 import org.jboss.modules.ModuleLoadException;
 import org.jboss.osgi.container.bundle.AbstractBundle;
 import org.jboss.osgi.container.bundle.BundleManager;
-import org.jboss.osgi.container.bundle.Revision;
 import org.jboss.osgi.container.bundle.ModuleManager;
+import org.jboss.osgi.container.bundle.Revision;
 import org.jboss.osgi.container.plugin.AbstractPlugin;
 import org.jboss.osgi.container.plugin.ModuleManagerPlugin;
 import org.jboss.osgi.container.plugin.ResolverPlugin;
@@ -99,7 +99,6 @@ public class ResolverPluginImpl extends AbstractPlugin implements ResolverPlugin
 
       // Load the resolved module
       ModuleManagerPlugin moduleManger = getPlugin(ModuleManagerPlugin.class);
-      // ModuleIdentifier identifier = bundleState.getModuleIdentifier();
       ModuleIdentifier identifier = ModuleManager.getModuleIdentifier(resModule);
       try
       {

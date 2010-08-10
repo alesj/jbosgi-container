@@ -24,6 +24,7 @@ package org.jboss.osgi.container.bundle;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +71,7 @@ public class SystemBundle extends AbstractBundle implements Revision
       // Initialize the system resolver module
       // [TODO] Bring the resolver module in sync with the metadata
       XModuleBuilder builder = XResolverFactory.getModuleBuilder();
-      resolverModule = builder.createModule(0, getSymbolicName(), getVersion());
+      resolverModule = builder.createModule(getRevisionID(), getSymbolicName(), getVersion());
       resolverModule.addAttachment(Bundle.class, this);
       
       builder.addBundleCapability(getSymbolicName(), getVersion());
@@ -130,6 +131,12 @@ public class SystemBundle extends AbstractBundle implements Revision
    }
 
    @Override
+   public List<XModule> getAllResolverModules()
+   {
+      return Collections.singletonList(resolverModule);
+   }
+
+   @Override
    public VirtualFile getRootFile()
    {
       return null;
@@ -144,21 +151,20 @@ public class SystemBundle extends AbstractBundle implements Revision
    @Override
    public void addToResolver()
    {
-
+      getResolverPlugin().addRevision(this);
    }
 
    @Override
    public boolean checkResolved()
    {
-      // TODO Auto-generated method stub
-      return false;
+      // The system bundle is always resolved
+      return true;
    }
 
    @Override
    public void removeFromResolver()
    {
-      // TODO Auto-generated method stub
-
+      getResolverPlugin().removeRevision(this);
    }
 
    @Override
@@ -240,6 +246,20 @@ public class SystemBundle extends AbstractBundle implements Revision
    public Enumeration getResources(String name) throws IOException
    {
       return getClass().getClassLoader().getResources(name);
+   }
+
+   @Override
+   public int getRevisionID()
+   {
+      // The system bundle has revision ID 0
+      return 0;
+   }
+
+   @Override
+   public int getRevision()
+   {
+      // There is only 1 revision from the system bundle
+      return 0;
    }
 
    @Override

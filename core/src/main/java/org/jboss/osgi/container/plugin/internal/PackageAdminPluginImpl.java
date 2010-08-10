@@ -117,8 +117,22 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
       if (bundle == null)
          return getAllExportedPackages();
 
-      AbstractBundle bundleState = AbstractBundle.assertBundleState(bundle);
-      XModule resModule = bundleState.getResolverModule();
+      List<ExportedPackage> result = new ArrayList<ExportedPackage>();
+      AbstractBundle ab = AbstractBundle.assertBundleState(bundle);
+      for (XModule resModule : ab.getAllResolverModules())
+      {
+         if (resModule.isResolved() == false)
+            continue;
+
+         for (XPackageCapability cap : resModule.getPackageCapabilities())
+         {
+            ExportedPackage exp = new ExportedPackageImpl(cap);
+            result.add(exp);
+         }
+      }
+
+      /*
+      XModule resModule = ab.getResolverModule();
       if (resModule.isResolved() == false)
          return null;
 
@@ -128,6 +142,7 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
          ExportedPackage exp = new ExportedPackageImpl(cap);
          result.add(exp);
       }
+      */
 
       if (result.size() == 0)
          return null; // a bit ugly, but the spec mandates this
@@ -197,6 +212,7 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
             if (bundles == null)
                bundles = getBundleManager().getSystemContext().getBundles();
 
+            /*
             Map<InternalBundle, XModule> refreshMap = new HashMap<InternalBundle, XModule>();
             for (Bundle b : bundles)
             {
@@ -205,10 +221,20 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
 
                InternalBundle ab = InternalBundle.assertBundleState(b);
                refreshMap.put(ab, ab.getResolverModule());
+            }*/
+            Map<XModule, InternalBundle> refreshMap = new HashMap<XModule, InternalBundle>();
+            for (Bundle b : bundles)
+            {
+               if (b.getBundleId() == 0)
+                  continue;
+
+               InternalBundle ib = InternalBundle.assertBundleState(b);
+               for (XModule resModule : ib.getAllResolverModules())
+                  refreshMap.put(resModule, ib);
             }
 
             Set<InternalBundle> stopBundles = new HashSet<InternalBundle>();
-            Set<InternalBundle> refreshBundles = new HashSet<InternalBundle>(refreshMap.keySet());
+            Set<InternalBundle> refreshBundles = new HashSet<InternalBundle>(refreshMap.values());
 
             // Compute all depending bundles that need to be stopped and unresolved.
             for (AbstractBundle ab : getBundleManager().getBundles())
@@ -224,7 +250,7 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
 
                for (XWire wire : wires)
                {
-                  if (refreshMap.containsValue(wire.getExporter()))
+                  if (refreshMap.containsKey(wire.getExporter()))
                   {
                      // Bundles can be either ACTIVE or RESOLVED
                      int state = ib.getState();
@@ -239,7 +265,7 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
             }
 
             // Add relevant bundles to be refreshed also to the stop list. 
-            for (InternalBundle ib : refreshMap.keySet())
+            for (InternalBundle ib : new HashSet<InternalBundle>(refreshMap.values()))
             {
                int state = ib.getState();
                if (state == Bundle.ACTIVE || state == Bundle.STARTING)
@@ -284,17 +310,17 @@ public class PackageAdminPluginImpl extends AbstractPlugin implements PackageAdm
                }
             }
 
-            //            for (InternalBundle ib : refreshList)
-            //            {
-            //               try
-            //               {
-            //                  ib.refresh();
-            //               }
-            //               catch (BundleException e)
-            //               {
-            //                  eventsPlugin.fireFrameworkEvent(ib, FrameworkEvent.ERROR, e);
-            //               }
-            //            }
+            for (InternalBundle ib : refreshList)
+            {
+               try
+               {
+                  ib.refresh();
+               }
+               catch (BundleException e)
+               {
+                  eventsPlugin.fireFrameworkEvent(ib, FrameworkEvent.ERROR, e);
+               }
+            }
 
             for (InternalBundle b : stopList)
             {

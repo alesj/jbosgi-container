@@ -24,6 +24,7 @@ package org.jboss.osgi.container.bundle;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleClassLoader;
@@ -45,8 +46,12 @@ import org.osgi.framework.Version;
  */
 public abstract class AbstractBundleRevision implements Revision
 {
+   // Ordinary revision IDs start at 1, as 0 is the System Bundle Revision ID.
+   private static final AtomicInteger revisionIDCounter = new AtomicInteger(1);
+
    private final InternalBundle internalBundle;
    private final OSGiMetaData metadata;
+   private final int revisionID = revisionIDCounter.getAndIncrement();
    // The revision increases every time a bundle gets updated
    private final int revision;
    private final Version version;
@@ -92,6 +97,12 @@ public abstract class AbstractBundleRevision implements Revision
    OSGiMetaData getOSGiMetaData()
    {
       return metadata;
+   }
+
+   @Override
+   public int getRevisionID()
+   {
+      return revisionID;
    }
 
    public int getRevision()

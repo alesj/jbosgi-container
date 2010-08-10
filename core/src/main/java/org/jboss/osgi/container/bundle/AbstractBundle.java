@@ -123,7 +123,19 @@ public abstract class AbstractBundle implements Bundle
 
    abstract OSGiMetaData getOSGiMetaData();
 
+   /** 
+    * This method returns the current resolver module of the bundle.
+    * @return the resolver module
+    */
    public abstract XModule getResolverModule();
+
+   /**
+    * This method returns all the resolver modules of the bundle, including
+    * those of revisions that may since have been updated. These obsolete
+    * resolver modules disappear when PackageAdmin.refreshPackages() is called.
+    * @return A list of all the resolver modules
+    */
+   public abstract List<XModule> getAllResolverModules();
 
    public abstract VirtualFile getRootFile();
 

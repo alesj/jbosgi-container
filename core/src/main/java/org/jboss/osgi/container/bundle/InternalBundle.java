@@ -24,6 +24,7 @@ package org.jboss.osgi.container.bundle;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -180,25 +181,18 @@ public class InternalBundle extends AbstractBundle
    }
 
    /** 
-    * This method gets called by Package Admin when the bundle needs to be refreshed.
+    * This method gets called by Package Admin when the bundle needs to be refreshed,
+    * this means that all the old revisions are thrown out.
     */
-   /*
    public void refresh() throws BundleException
    {
-      if (latestRevision.equals(currentRevision))
-         return;
+      List<AbstractBundleRevision> oldRevs = oldRevisions;
+      oldRevisions = new CopyOnWriteArrayList<AbstractBundleRevision>();
 
-      if (getState() == Bundle.UNINSTALLED)
-      {
-         // TODO possibly do some cleanup, or is everything properly dereferenced at this stage?
-         return;
-      }
-
-      //      getResolverPlugin().removeBundle(this);
-      currentRevision = latestRevision;
-      getResolverPlugin().addRevision(currentRevision);
+      // Remove the old revisions from the resolver
+      for (AbstractBundleRevision abr : oldRevs)
+         getResolverPlugin().removeRevision(abr);
    }
-   */
 
    @Override
    void startInternal(int options) throws BundleException
@@ -619,6 +613,17 @@ public class InternalBundle extends AbstractBundle
    public XModule getResolverModule()
    {
       return currentRevision.getResolverModule();
+   }
+
+   @Override
+   public List<XModule> getAllResolverModules()
+   {
+      List<XModule> allModules = new ArrayList<XModule>(oldRevisions.size() + 1);
+      for (Revision rev : oldRevisions)
+         allModules.add(rev.getResolverModule());
+
+      allModules.add(currentRevision.getResolverModule());
+      return allModules;
    }
 
    @Override
